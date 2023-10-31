@@ -1,0 +1,16 @@
+{
+  "name": "spa",
+  "private": true,
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "turbo run dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "turbo": "^1.10.16"
+  },
+  "workspaces": ["packages/*"]
+}
