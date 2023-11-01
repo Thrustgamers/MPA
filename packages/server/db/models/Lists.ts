@@ -29,7 +29,7 @@ Lists.init({
     allowNull: false,
   },
   songs: {
-   type: DataTypes.ARRAY(),
+   type: DataTypes.ARRAY(DataTypes.NUMBER),
    allowNull: false,
   }
 }, {

@@ -3,7 +3,7 @@
     "esModuleInterop" : true,
     "strict": true,
     "lib": ["ESNext"],
-    "module": "CommonJS",
+    "module": "commonjs",
     "target": "ESNext",
     "moduleResolution": "node",
   }
