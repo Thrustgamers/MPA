@@ -3,7 +3,8 @@ import Song from '../db/models/Songs';
 import Category from '../db/models/Categories';
 import User from '../db/models/Users';
 import List from '../db/models/Lists';
-import superjson from 'superjson';
+let superjson: any = ''
+import('superjson').then((a) => superjson = a)
 import { z } from 'zod';
 
 const trpc = initTRPC.create({ transformer: superjson });
