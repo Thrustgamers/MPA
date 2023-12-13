@@ -4,7 +4,7 @@ export interface ListAttributes {
    id: number;
    owner: number;
    name : string;
-   songs: number[];
+   songs: string;
 }
 
 export interface ListInput extends Optional<ListAttributes, 'id'> {}

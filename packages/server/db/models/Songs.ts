@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize'
+import { CreationOptional, DataTypes, Model } from 'sequelize'
 import sequelizeConnection from '../config'
 import { SongAttributes, SongInput} from '../../types/Songs'
 
@@ -6,6 +6,8 @@ export default class Songs extends Model<SongAttributes, SongInput> implements S
   declare id: number
   declare category: number
   declare name: string
+  declare createdAt: CreationOptional<Date>
+  declare updatedAt: CreationOptional<Date>
 }
   
 Songs.init({
@@ -15,9 +17,8 @@ Songs.init({
     primaryKey: true,
     unique: true
   },
-  category: {
-    type: DataTypes.INTEGER(),
-    allowNull: false,
+  category: { 
+    type: DataTypes.INTEGER.UNSIGNED,
     references: {
       model: 'Categories',
       key: 'id',
@@ -29,4 +30,4 @@ Songs.init({
   }
 }, {
   sequelize: sequelizeConnection,
-})
+}) 

@@ -1,4 +1,4 @@
-import { DataTypes, Model } from 'sequelize'
+import { CreationOptional, DataTypes, Model } from 'sequelize'
 import sequelizeConnection from '../config'
 import { ListAttributes, ListInput} from '../../types/Lists'
 
@@ -6,7 +6,9 @@ export default class Lists extends Model<ListAttributes, ListInput> implements L
   declare id: number
   declare owner: number
   declare name: string
-  declare songs: number[]
+  declare songs: string
+  declare createdAt: CreationOptional<Date>
+  declare updatedAt: CreationOptional<Date>
 }
   
 Lists.init({
@@ -17,8 +19,9 @@ Lists.init({
    unique: true
   },
   owner: {
-   type: DataTypes.INTEGER(),
+   type: DataTypes.NUMBER,
    allowNull: false,
+   defaultValue: 1,
    references: {
       model: 'Users',
       key: 'id',
@@ -29,8 +32,7 @@ Lists.init({
     allowNull: false,
   },
   songs: {
-   type: DataTypes.ARRAY(DataTypes.NUMBER),
-   allowNull: false,
+   type: DataTypes.STRING(500)
   }
 }, {
   sequelize: sequelizeConnection,

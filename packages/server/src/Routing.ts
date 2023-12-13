@@ -3,11 +3,9 @@ import Song from '../db/models/Songs';
 import Category from '../db/models/Categories';
 import User from '../db/models/Users';
 import List from '../db/models/Lists';
-let superjson: any = ''
-import('superjson').then((a) => superjson = a)
 import { z } from 'zod';
 
-const trpc = initTRPC.create({ transformer: superjson });
+const trpc = initTRPC.create();
 
 const loggerMiddleware = trpc.middleware(async (opts) => {
     const start = Date.now();
@@ -26,6 +24,130 @@ const loggerMiddleware = trpc.middleware(async (opts) => {
 
 const publicProcedure = trpc.procedure.use(loggerMiddleware);
 export const router = trpc.router
+
+const categoryRouter = router({
+    create: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                name: z.string(),
+                saved: z.number()
+            })
+        ).query(async ({ input }) => {
+            const category = await Category.create(input)
+            return category
+        }),
+
+    update: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                name: z.string(),
+                saved: z.number()
+            })
+        ).query(async ({ input }) => {
+            const category = await Category.findByPk(input.id)
+            if (!category) {
+                return {}
+            }
+            //@ts-ignore
+            const updatedCategory = await (category as typeof Category).update(input)
+            return updatedCategory
+        }),
+
+    getById: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        ).query(async ({ input }) => {
+            const category = await Category.findByPk(input.id)
+            if (!category) {
+                return {}
+            }
+            return category
+        }),
+
+    deleteById: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        ).query(async ({ input }) => {
+            const id = input.id
+            const deletedCategoryCount = await Category.destroy({  where: { id } })
+            return !!deletedCategoryCount
+        }),
+
+    getAll: publicProcedure
+        .query(async () => {
+            const categorys = await Category.findAll() 
+            return categorys
+        }),    
+});
+
+const listRouter = router({
+    create: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                name: z.string(),
+                owner: z.number(),
+                songs: z.string()
+            })
+        ).query(async ({ input }) => {
+            const list = await List.create(input)
+            return list
+        }),
+
+    update: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                name: z.string(),
+                owner: z.number(),
+                songs: z.string()
+            })
+        ).query(async ({ input }) => {
+            const list = await List.findByPk(input.id)
+            if (!list) {
+                return {}
+            }
+            //@ts-ignore
+            const updatedList = await (list as typeof List).update(input)
+            return updatedList
+        }),
+
+    getById: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        ).query(async ({ input }) => {
+            const list = await List.findByPk(input.id)
+            if (!list) {
+                return {}
+            }
+            return list
+        }),
+
+    deleteById: publicProcedure
+        .input(
+            z.object({
+                id: z.number(),
+            })
+        ).query(async ({ input }) => {
+            const id = input.id
+            const deletedListCount = await List.destroy({  where: { id } })
+            return !!deletedListCount
+        }),
+
+    getAll: publicProcedure
+        .query(async () => {
+            const lists = await List.findAll() 
+            return lists
+        }),    
+});
 
 const songRouter = router({
     create: publicProcedure
@@ -90,68 +212,22 @@ const songRouter = router({
         }),         
 });
 
-const categoryRouter = router({
-    create: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-                name: z.string(),
-                saved: z.number()
-            })
-        ).query(async ({ input }) => {
-            const category = await Category.create(input)
-            return category
-        }),
-
-    update: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-                name: z.string(),
-                saved: z.number()
-            })
-        ).query(async ({ input }) => {
-            const category = await Category.findByPk(input.id)
-            if (!category) {
-                return {}
-            }
-            //@ts-ignore
-            const updatedCategory = await (category as typeof Category).update(input)
-            return updatedCategory
-        }),
-
-    getById: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-            })
-        ).query(async ({ input }) => {
-            const category = await Category.findByPk(input.id)
-            if (!category) {
-                return {}
-            }
-            return category
-        }),
-
-    deleteById: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-            })
-        ).query(async ({ input }) => {
-            const id = input.id
-            const deletedCategoryCount = await Category.destroy({  where: { id } })
-            return !!deletedCategoryCount
-        }),
-
-    getAll: publicProcedure
-        .query(async () => {
-            const categorys = await Category.findAll() 
-            return categorys
-        }),    
-});
-
 const userRouter = router({
+    checkLogin: publicProcedure
+        .input(
+            z.object({
+                email: z.string(),
+                password: z.string()
+            })
+        ).query(async ({ input }) => {
+            const user = await User.findOne({ where: { email: input.email }})
+
+            if (!user || user.password !== input.password) {
+                return {}
+            }
+
+            return user
+        }),
     create: publicProcedure
         .input(
             z.object({
@@ -212,67 +288,5 @@ const userRouter = router({
         }),    
 });
 
-const listRouter = router({
-    create: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-                name: z.string(),
-                owner: z.number(),
-                songs: z.number().array()
-            })
-        ).query(async ({ input }) => {
-            const list = await List.create(input)
-            return list
-        }),
 
-    update: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-                name: z.string(),
-                owner: z.number(),
-                songs: z.number().array()
-            })
-        ).query(async ({ input }) => {
-            const list = await List.findByPk(input.id)
-            if (!list) {
-                return {}
-            }
-            //@ts-ignore
-            const updatedList = await (list as typeof List).update(input)
-            return updatedList
-        }),
-
-    getById: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-            })
-        ).query(async ({ input }) => {
-            const list = await List.findByPk(input.id)
-            if (!list) {
-                return {}
-            }
-            return list
-        }),
-
-    deleteById: publicProcedure
-        .input(
-            z.object({
-                id: z.number(),
-            })
-        ).query(async ({ input }) => {
-            const id = input.id
-            const deletedListCount = await List.destroy({  where: { id } })
-            return !!deletedListCount
-        }),
-
-    getAll: publicProcedure
-        .query(async () => {
-            const lists = await List.findAll() 
-            return lists
-        }),    
-});
-
-export const appRouter = router({ song : songRouter, category: categoryRouter, user: userRouter, list: listRouter })
+export const appRouter = router({ category: categoryRouter, list: listRouter, song : songRouter,  user: userRouter })
